@@ -9,7 +9,10 @@ const router = require("./router");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+  pingTimeout: 30000,
+  pingInterval: 30000,
+});
 
 app.use(router);
 app.use(cors());
@@ -48,8 +51,9 @@ io.on("connect", (socket) => {
     callback();
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", (reason) => {
     const user = removeUser(socket.id);
+    console.log(reason);
     if (user) {
       io.to(user.room).emit("message", {
         user: "admin",

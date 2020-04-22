@@ -10,7 +10,7 @@ const addUser = ({ id, name, room }) => {
 
   if (!name) return { error: "Username is required." };
   if (existingUser) {
-    return { error: "Username is taken" };
+    return { error: "Username is taken." };
   }
 
   const user = { id, name, room };

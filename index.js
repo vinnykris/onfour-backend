@@ -13,10 +13,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 io.on("connect", (socket) => {
-  //   console.log("we have a new connection");
-
   socket.on("join", ({ name, room }, callback) => {
-    console.log("user joined");
     const { error, user } = addUser({ id: socket.id, name, room });
 
     if (error) return callback(error);
@@ -57,7 +54,6 @@ io.on("connect", (socket) => {
         text: `${user.name} has left.`,
       });
     }
-    console.log("user has left :(");
   });
 });
 

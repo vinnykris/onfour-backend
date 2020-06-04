@@ -4,17 +4,17 @@ const addUser = ({ id, name, room }) => {
   name = name.trim().toLowerCase();
   room = room.trim().toLowerCase();
 
-  const existingUser = users.find(
-    (user) => user.name === name && user.room === room
-  );
+  // const existingUser = users.find(
+  //   (user) => user.name === name && user.room === room
+  // );
 
   if (!name)
     return {
       error: "Username is required.",
     };
-  if (existingUser) {
-    return { error: "Username is taken." };
-  }
+  // if (existingUser) {
+  //   return { error: "Username is taken." };
+  // }
 
   const user = { id, name, room };
   users.push(user);
@@ -32,10 +32,10 @@ const removeUser = (id) => {
 
 const getUser = (id) => {
   const user = users.find((user) => user.id === id);
-  // if (!user)
-  //   return {
-  //     error: "User is invalid.",
-  //   };
+  if (!user)
+    return {
+      error: "User is invalid.",
+    };
   return user;
 };
 

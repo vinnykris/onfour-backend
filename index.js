@@ -44,9 +44,9 @@ io.on("connect", (socket) => {
   });
 
   socket.on("sendMessage", (message, callback) => {
-    const user = getUser(socket.id);
+    const { error, user } = getUser(socket.id);
 
-    if (!user) {
+    if (error) {
       return callback(error);
     }
 

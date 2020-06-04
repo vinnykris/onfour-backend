@@ -32,10 +32,10 @@ const removeUser = (id) => {
 
 const getUser = (id) => {
   const user = users.find((user) => user.id === id);
-  // if (!user)
-  //   return {
-  //     error: "User is invalid.",
-  //   };
+  if (!user)
+    return {
+      error: "User is invalid.",
+    };
   return user;
 };
 

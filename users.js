@@ -36,7 +36,7 @@ const getUser = (id) => {
     return {
       error: "User is invalid.",
     };
-  return user;
+  return { user };
 };
 
 const getUsersInRoom = (room) => users.filter((user) => user.room === room);

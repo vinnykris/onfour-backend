@@ -25,7 +25,7 @@ io.on("connect", (socket) => {
 
     socket.join(user.room);
 
-    if (name !== "guest") {
+    if (name !== "GUEST") {
       socket.emit("message", {
         user: "admin",
         text: `Welcome to ${user.room}, ${user.name}!`,

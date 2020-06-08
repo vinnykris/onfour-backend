@@ -25,10 +25,17 @@ io.on("connect", (socket) => {
 
     socket.join(user.room);
 
-    socket.emit("message", {
-      user: "admin",
-      text: `Welcome to ${user.room}, ${user.name}!`,
-    });
+    if (name !== "guest") {
+      socket.emit("message", {
+        user: "admin",
+        text: `Welcome to ${user.room}, ${user.name}!`,
+      });
+    } else {
+      socket.emit("message", {
+        user: "admin",
+        text: `You have joined ${user.room} as a guest. Please log in to send messages.`,
+      });
+    }
 
     socket.broadcast.to(user.room).emit("message", {
       user: "admin",

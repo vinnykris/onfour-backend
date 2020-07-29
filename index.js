@@ -76,6 +76,8 @@ io.on("connect", (socket) => {
     //emit
     io.to(user.room).emit("message", { user: user.name, text: message });
 
+    console.log("message :o");
+
     msgData = {
       user : user.name,
       message : message,

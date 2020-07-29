@@ -2,6 +2,21 @@ const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
 const cors = require("cors");
+const mongoose = require('mongoose');
+
+mongoose.connect("mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db?retryWrites=true&w=majority" , {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+mongoose.connection.on('connected', ()={
+  console.log("Mongoose connection established :o");
+});
+let chatSchema = new mongoose.Schema({
+  user: String,
+  message: String,
+  time: String
+});
+let chatDB = mongoose.model('Message', chatSchema);
 
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./users.js");
 
@@ -16,6 +31,8 @@ const io = socketio(server, {
 
 app.use(router);
 app.use(cors());
+
+let msgData;
 
 io.on("connect", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
@@ -56,8 +73,22 @@ io.on("connect", (socket) => {
     if (error) {
       return callback(error);
     }
-
+    //emit
     io.to(user.room).emit("message", { user: user.name, text: message });
+
+    msgData = {
+      user : user.name,
+      message : message,
+      time : new Date()
+    };
+
+    msgData.save(function (err, msgData){
+      if (err) console.log(err);
+      console.log("succuess");
+    })
+
+    //insert into mongodb
+    chatDB.collection.insert()
 
     callback();
   });

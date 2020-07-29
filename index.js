@@ -33,6 +33,7 @@ app.use(router);
 app.use(cors());
 
 let msgData;
+//no
 
 io.on("connect", (socket) => {
   socket.on("join", ({ name, room }, callback) => {

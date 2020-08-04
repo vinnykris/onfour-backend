@@ -19,9 +19,14 @@
   },
   "homepage": "https://github.com/vinnykris/onfour-backend#readme",
   "dependencies": {
+    "aws-amplify": "^3.0.22",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "nodemon": "^2.0.3",
+    "graphql": "^14.6.0",
+    "moment": "^2.27.0",
+    "mongoose": "^5.9.27",
+    "nodemon": "^2.0.4",
+    "pubsub": "^3.2.1",
     "socket.io": "^2.3.0"
   }
 }

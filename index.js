@@ -121,9 +121,9 @@ async function chatFiller(socket, user) {
 
     let timenow = new Date().valueOf();
 
-    //checks if concert is after current date. If so, defaults to pulling chats 1 min back
+    //checks if concert is after current date. If so, defaults to pulling chats 30 min back
     let timelim =
-      timenow > recentConcertStart ? recentConcertStart : timenow - 600 * 1000;
+      timenow > recentConcertStart ? recentConcertStart : timenow - 1800 * 1000;
 
     //pull all data from the mongoose database between start of current concert and present time
     let info = await chat.find({ time: { $gte: timelim } }).limit(100);

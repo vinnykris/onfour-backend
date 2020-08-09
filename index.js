@@ -126,7 +126,11 @@ async function chatFiller(socket, user) {
       timenow > recentConcertStart ? recentConcertStart : timenow - 1800 * 1000;
 
     //pull all data from the mongoose database between start of current concert and present time
-    let info = await chat.find({ time: { $gte: timelim } }).limit(100).hint("time_index");
+    let info = await chat
+      .find({ time: { $gte: timelim } })
+      .limit(100)
+      .hint("time_index")
+      .sort({ time: -1 });
 
     //push all messages to the user's chatroom
     info.forEach((message) => {

@@ -128,10 +128,9 @@ async function chatFiller(socket, user) {
     //pull all data from the mongoose database between start of current concert and present time
     let info = await chat
       .find({ time: { $gte: timelim } })
+      .sort({ time: -1 })
       .limit(100)
-      .hint("time_index")
-      .sort({ time: -1 });
-
+      .hint("time_index");
     //push all messages to the user's chatroom
     info.forEach((message) => {
       socket.emit("message", {

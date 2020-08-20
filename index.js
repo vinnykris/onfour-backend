@@ -2,23 +2,27 @@ const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
 const cors = require("cors");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { getMostRecentUpcomingInfo } = require("./apis/get_concert_data");
 
-mongoose.connect("mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db?retryWrites=true&w=majority" , {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-mongoose.connection.on('connected', ()=>{0
+mongoose.connect(
+  "mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+mongoose.connection.on("connected", () => {
+  0;
   console.log("Mongoose connection established :o");
 });
 let chatSchema = new mongoose.Schema({
   user: String,
   message: String,
-  time: String
+  time: String,
 });
-let chat = mongoose.model('Message', chatSchema);
+let chat = mongoose.model("Message", chatSchema);
 
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./users.js");
 
@@ -30,6 +34,9 @@ const io = socketio(server, {
   pingTimeout: 30000,
   pingInterval: 30000,
 });
+
+io.set('origins', '*:*');
+io.origins('*:*');
 
 app.use(router);
 app.use(cors());
@@ -76,22 +83,50 @@ io.on("connect", (socket) => {
     if (error) {
       return callback(error);
     }
+
+    let currentTime = (new Date()).valueOf();
+
+    console.log(currentTime);
+
     //emit
-    io.to(user.room).emit("message", { user: user.name, text: message });
+    io.to(user.room).emit("message", { user: user.name, text: message, timeStamp: currentTime, likes: 0 });
 
     //store msg data in obj
     let msgData = new chat({
-      user : user.name,
-      message : message,
-      time : (new Date()).valueOf() //valueOf used for easy comparing between messages
+      user: user.name,
+      message: message,
+      time: currentTime, //valueOf used for easy comparing between messages
     });
 
     //send data to db
-    msgData.save(function (err, msgData){
+    msgData.save(function (err, msgData) {
       if (err) console.log(err);
       console.log("succuess");
-    })
+    });
 
+    callback();
+  });
+
+  socket.on("likeMessage", (data, callback) => {
+    let user = data.user;
+    let text = data.text;
+    let timeStamp = data.timeStamp;
+    let socketId = data.socketId;
+    console.log(timeStamp);
+    io.emit("like", { user, text, timeStamp, socketId });
+    // io.to(userAuth.room).emit("like", { user, text });
+
+    callback();
+  });
+
+  socket.on("unlikeMessage", (data, callback) => {
+    let user = data.user;
+    let text = data.text;
+    let timeStamp = data.timeStamp;
+    let socketId = data.socketId;
+    console.log(timeStamp);
+    io.emit("unlike", { user, text, timeStamp, socketId });
+    // io.to(userAuth.room).emit("like", { user, text });
 
     callback();
   });
@@ -108,31 +143,36 @@ io.on("connect", (socket) => {
   });
 });
 //fills the chat with messages from previous users
-async function chatFiller(socket, user){
+async function chatFiller(socket, user) {
   try {
-
     //pulls most recent concert and gets start data in valueOf (raw milliseconds)
     let recent = await getMostRecentUpcomingInfo();
-    let recentConcertStart = (new Date(recent.date + " " + recent.time)).valueOf();
+    let recentConcertStart = new Date(
+      recent.date + " " + recent.time
+    ).valueOf();
 
-    let timenow = (new Date()).valueOf();
+    let timenow = new Date().valueOf();
 
-    //checks if concert is after current date. If so, defaults to pulling chats 1 min back
-    let timelim = (timenow > recentConcertStart) ? recentConcertStart : timenow - 60*1000;
+    //checks if concert is after current date. If so, defaults to pulling chats 30 min back
+    let timelim =
+      timenow > recentConcertStart ? recentConcertStart : timenow - 1800 * 1000;
 
     //pull all data from the mongoose database between start of current concert and present time
-    let info = await chat.find({ time : {$gte: timelim}}).limit(100);
-
+    let info = await chat
+      .find({ time: { $gte: timelim } })
+      .sort({ time: 1 })
+      .limit(100)
+      .hint("time_index");
     //push all messages to the user's chatroom
-    info.forEach(message=>{
+    info.forEach((message) => {
       socket.emit("message", {
         user: message.user,
-        text: message.message
+        text: message.message,
+        timeStamp: message.time,
+        likes: 0
       });
-     });
-
-  }
-  catch(e){
+    });
+  } catch (e) {
     console.log(e);
   }
 }

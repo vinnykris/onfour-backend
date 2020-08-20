@@ -3,10 +3,11 @@ const { graphql } = require('graphql');
 const { API, graphqlOperation, Amplify } = require("aws-amplify")
 const { awsmobile } = require("./AppSync");
 
-//why put this here instead of in queries file?
+//why put this here instead of in a queries file?
 //requiring the query removes a graphql required header
 //importing keeps the header, but doesn't work with node js due to how modules work
-//so this must go here!
+//I know there is a better solution, but this will do
+//here's the error: TypeError: Must provide Source. Received: undefined
 const list_concerts = `query listConcerts(
 $filter: TableConcertFilterInput
 ) {

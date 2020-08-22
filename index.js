@@ -6,6 +6,35 @@ const mongoose = require("mongoose");
 
 const { getMostRecentUpcomingInfo } = require("./apis/get_concert_data");
 
+const setMongooseConnection = (mode, mongoose) => {
+  mongoose.disconnect();
+  switch(mode){
+    case "production":
+      mongoose.connect(
+        "mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db?retryWrites=true&w=majority",
+        {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        }
+      );
+      console.log("prod");
+      break;
+    case "development":
+      mongoose.connect(
+        "mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db_development?retryWrites=true&w=majority",
+        {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        }
+      );
+      console.log("dev");
+      break;
+    default:
+      console.log("fail to connect");
+      break;
+  }
+}
+//default to normal chat
 mongoose.connect(
   "mongodb+srv://onfour:MONGOon412345!@cluster0.aeiao.mongodb.net/chat_db?retryWrites=true&w=majority",
   {
@@ -13,8 +42,8 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+
 mongoose.connection.on("connected", () => {
-  0;
   console.log("Mongoose connection established :o");
 });
 let chatSchema = new mongoose.Schema({
@@ -26,7 +55,7 @@ let chat = mongoose.model("Message", chatSchema);
 
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./users.js");
 
-const router = require("./router");
+// const router = require("./router");
 
 const app = express();
 const server = http.createServer(app);
@@ -37,6 +66,32 @@ const io = socketio(server, {
 
 io.set('origins', '*:*');
 io.origins('*:*');
+
+const path = require("path");
+const router = express.Router(); //router
+
+let mongodb_mode = "production";
+
+router.get("/", (req, res) => {
+  // res.send({ response: "server is up and running" }).status(200);
+  res.sendFile(path.join(__dirname + "/index.html"));
+});
+
+router.get("/status", (req, res) => {
+  res.send({ response: "server is up and running. Using db "+mongodb_mode+" "}).status(200);
+});
+
+router.get("/production", (req, res) => {
+  res.send({ response: "production mode enabled" }).status(200);
+  mongodb_mode = "production";
+  setMongooseConnection(mongodb_mode, mongoose);
+});
+
+router.get("/development", (req, res) => {
+  res.send({ response: "development" }).status(200);
+  mongodb_mode = "development";
+  setMongooseConnection(mongodb_mode, mongoose);
+});
 
 app.use(router);
 app.use(cors());

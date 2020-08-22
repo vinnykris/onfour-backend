@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+
+  </head>
+  <body>
+    <script>
+      async function production(){
+        let disc = await fetch("/production");
+        window.location.replace("https://onfour-chat-tester.herokuapp.com/status");
+      }
+      async function development(){
+        let disc = await fetch("/development");
+        window.location.replace("https://onfour-chat-tester.herokuapp.com/status");
+      }
+    </script>
+    <div id="status">online! :o</div>
+    <button onclick="production()">set chat to production</button>
+    <button onclick="development()">set chat to development</button>
+
+  </body>
+</html>

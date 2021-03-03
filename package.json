@@ -27,6 +27,6 @@
     "mongoose": "^5.9.27",
     "nodemon": "^2.0.4",
     "pubsub": "^3.2.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   }
 }
